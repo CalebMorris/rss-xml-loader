@@ -1,0 +1,14 @@
+{
+  "parser": "babel-eslint",
+  "extends": "eslint-config-honu-base",
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "flowtype/require-parameter-type": 0,
+    "flowtype/require-return-type": 0
+  },
+  "plugins": [
+    "flowtype"
+  ]
+}

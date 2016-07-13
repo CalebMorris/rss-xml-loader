@@ -1,0 +1,38 @@
+{
+  "name": "rss-xml-loader",
+  "version": "0.1.0",
+  "description": "XML Loader to process and wrap RSS Feeds",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --recursive --compilers js:babel-register",
+    "lint": "./node_modules/.bin/eslint src test *.js",
+    "clean": "rm -Rf ./coverage",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
+    "lint-quiet": "./node_modules/.bin/eslint --ext .js --quiet .",
+    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --reporter dot --recursive --compilers js:babel-register"
+  },
+  "keywords": [
+    "rss",
+    "feed",
+    "xml",
+    "parser"
+  ],
+  "author": "Caleb G. Morris <caleb.morris.g@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.4.1",
+    "rss-spec": "git+ssh@gitlab.com:CalebMorris/rss-spec.git",
+    "xml2js": "^0.4.17"
+  },
+  "devDependencies": {
+    "babel-eslint": "^6.1.2",
+    "babel-register": "^6.9.0",
+    "chai": "^3.5.0",
+    "eslint": "^3.0.1",
+    "eslint-config-honu-base": "git+ssh@gitlab.com:CalebMorris/eslint-config-honu-base.git",
+    "eslint-plugin-flowtype": "^2.3.0",
+    "eslint-plugin-react": "^5.2.2",
+    "istanbul": "^0.4.4",
+    "mocha": "^2.5.3"
+  }
+}
