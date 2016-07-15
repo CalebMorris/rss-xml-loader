@@ -1,86 +1,79 @@
-/* eslint no-param-reassign: 0 */
-
+import Promise, { promisify } from 'bluebird';
 import { RSSCategory, RSSCloud, RSSEnclosure, RSSFeed, RSSImage, RSSItem } from 'rss-spec';
 import { parseString } from 'xml2js';
 
-import Promise, { promisify } from 'bluebird';
-import getContentStorage from '../../state/base/content-storage';
+import RssXmlTransformerError from './RssXmlTransformerError.js';
+import { stripSingleItemArrayFromXMLObject } from './util';
 
-const storage = getContentStorage();
 const parseXMLString = promisify(parseString);
 
-function stripArrayFromXMLObject(nodeData: any): any {
-  if (nodeData && typeof nodeData === 'object') {
-    Object.keys(nodeData).forEach((key: string) => {
-      if (Array.isArray(nodeData) && nodeData.length > 0) {
-        nodeData[key] = stripArrayFromXMLObject(nodeData[0]);
-      }
-    });
-  }
-  return nodeData;
-}
+type GenerateGUIDType = (obj: RSSCategory | RSSCloud | RSSEnclosure | RSSFeed | RSSImage | RSSItem, classType: string) => string;
 
-function rssItemFromXMLObject(itemData: any): string {
+function rssItemFromXMLObject(generateGUID: GenerateGUIDType, itemData: any): string {
   const { category, enclosure, ...feedItem } = itemData;
 
   if (category && category.length > 0) {
-    const itemCategoryObject = RSSCategory.fromObject(stripArrayFromXMLObject(category[0]));
-    storage.setItem(itemCategoryObject);
-    feedItem.category = itemCategoryObject.hash;
+    const itemCategoryObject = RSSCategory.fromObject(stripSingleItemArrayFromXMLObject(category[0]));
+    feedItem.category = generateGUID(itemCategoryObject, RSSCategory.name);
   }
 
   if (enclosure && enclosure.length > 0) {
-    const itemEnclosureObject = RSSEnclosure.fromObject(stripArrayFromXMLObject(enclosure[0]));
-    storage.setItem(itemEnclosureObject);
-    feedItem.enclosure = itemEnclosureObject.hash;
+    const itemEnclosureObject = RSSEnclosure.fromObject(stripSingleItemArrayFromXMLObject(enclosure[0]));
+    feedItem.enclosure = generateGUID(itemEnclosureObject, RSSEnclosure.name);
   }
 
-  const feedItemObject = RSSItem.fromObject(stripArrayFromXMLObject(feedItem));
-  storage.setItem(feedItemObject);
+  const feedItemObject = RSSItem.fromObject(stripSingleItemArrayFromXMLObject(feedItem));
 
-  return feedItemObject.hash;
+  return generateGUID(feedItemObject, RSSItem.name);
 }
 
-export default function rssFeedFromXml(xml: string): Promise<string> {
-  return parseXMLString(xml, { trim: true })
-    .then((xmlObj: any): string => {
-      if (
-        !xmlObj || !xmlObj.rss ||
-        !xmlObj.rss.channel || !xmlObj.rss.channel.length === 0
-      ) {
-        // TODO: Bubble parse failures
-        return null;
-      }
+export default class RssXmlTransformer {
+  constructor(generateGUID: GenerateGUIDType) {
+    if (! generateGUID || typeof generateGUID !== 'function') {
+      throw new RssXmlTransformerError('Invalid GUID function');
+    }
+    this.generateGUID = generateGUID;
+  }
 
-      const { category, cloud, image, item, ...feedData } = xmlObj.rss.channel[0];
+  transformFromString(xml: string) : Promise<string> {
+    return parseXMLString(xml, { trim: true })
+      .then((xmlObj: any): string => {
+        if (
+          !xmlObj || !xmlObj.rss ||
+          !xmlObj.rss.channel || !xmlObj.rss.channel.length === 0
+        ) {
+          // TODO: Bubble parse failures
+          return null;
+        }
 
-      if (category && category.length > 0) {
-        const categoryObject = RSSCategory.fromObject(stripArrayFromXMLObject(category[0]));
-        storage.setItem(categoryObject);
-        feedData.category = categoryObject.hash;
-      }
+        const { category, cloud, image, item, ...feedData } = xmlObj.rss.channel[0];
 
-      if (cloud && cloud.length > 0) {
-        const cloudObject = RSSCloud.fromObject(stripArrayFromXMLObject(cloud[0]));
-        storage.setItem(cloudObject);
-        feedData.cloud = cloudObject.hash;
-      }
+        if (category && category.length > 0) {
+          const categoryObject = RSSCategory.fromObject(stripSingleItemArrayFromXMLObject(category[0]));
+          feedData.category = this.generateGUID(categoryObject, RSSCategory.name);
+        }
 
-      if (image && image.length > 0) {
-        const imageObject = RSSImage.fromObject(stripArrayFromXMLObject(image[0]));
-        storage.setItem(imageObject);
-        feedData.image = imageObject.hash;
-      }
+        if (cloud && cloud.length > 0) {
+          const cloudObject = RSSCloud.fromObject(stripSingleItemArrayFromXMLObject(cloud[0]));
+          feedData.cloud = this.generateGUID(cloudObject, RSSCloud.name);
+        }
 
-      feedData.version = xmlObj.rss.$.version;
-      feedData.items = new Set([]);
-      [].concat(item || []).map(rssItemFromXMLObject).forEach((rssItem: any) => {
-        feedData.items.add(rssItem);
+        if (image && image.length > 0) {
+          const imageObject = RSSImage.fromObject(stripSingleItemArrayFromXMLObject(image[0]));
+          feedData.image = this.generateGUID(imageObject, RSSImage.name);
+        }
+
+        feedData.version = xmlObj.rss.$.version;
+        feedData.items = new Set([]);
+        [].concat(item || [])
+          .map(rssItemFromXMLObject.bind(null, this.generateGUID))
+          .forEach((rssItem: any) => {
+            feedData.items.add(rssItem);
+          });
+
+        const feedObject = RSSFeed.fromObject(feedData);
+
+        return this.generateGUID(feedObject, RSSFeed.name);
       });
-
-      const feedObject = RSSFeed.fromObject(feedData);
-      storage.setItem(feedObject);
-
-      return feedObject.hash;
-    });
+  }
 }

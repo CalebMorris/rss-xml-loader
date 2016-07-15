@@ -21,6 +21,7 @@
   "license": "MIT",
   "dependencies": {
     "bluebird": "^3.4.1",
+    "es6-error": "^3.0.0",
     "rss-spec": "git+ssh@gitlab.com:CalebMorris/rss-spec.git",
     "xml2js": "^0.4.17"
   },

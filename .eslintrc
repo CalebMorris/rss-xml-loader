@@ -6,7 +6,8 @@
   },
   "rules": {
     "flowtype/require-parameter-type": 0,
-    "flowtype/require-return-type": 0
+    "flowtype/require-return-type": 0,
+    "flowtype/type-id-match": [ 2, "^([A-Z][A-z0-9]+)+Type$" ]
   },
   "plugins": [
     "flowtype"
