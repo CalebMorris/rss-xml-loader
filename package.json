@@ -4,12 +4,9 @@
   "description": "XML Loader to process and wrap RSS Feeds",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --recursive --compilers js:babel-register",
+    "test": "./node_modules/.bin/mocha --recursive --compilers js:babel-register --require ./test/include.js",
     "lint": "./node_modules/.bin/eslint src tst *.js",
-    "clean": "rm -Rf ./coverage",
-    "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "lint-quiet": "./node_modules/.bin/eslint --ext .js --quiet .",
-    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --reporter dot --recursive --compilers js:babel-register"
+    "lint-quiet": "./node_modules/.bin/eslint --ext .js --quiet ."
   },
   "keywords": [
     "rss",
