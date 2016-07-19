@@ -1,10 +1,16 @@
 import Promise, { promisify } from 'bluebird';
-import { RSSCategory, RSSCloud, RSSEnclosure, RSSFeed, RSSImage, RSSItem } from 'rss-spec';
+import { ContentChild, RSSCategory, RSSCloud, RSSEnclosure, RSSFeed, RSSImage, RSSItem, RSSGuid, RSSSource } from 'rss-spec';
 import { parseString } from 'xml2js';
 
 const parseXMLString = promisify(parseString);
 
 export default class RssXmlTransformer {
+  constructor() {
+    this.rssFeedFromXMLObject = this.rssFeedFromXMLObject.bind(this);
+    this.rssItemFromXMLObject = this.rssItemFromXMLObject.bind(this);
+    this.transformFromString = this.transformFromString.bind(this);
+  }
+
   static get defaultXMLParseOptions() {
     return { trim: true, explicitArray: false };
   }
@@ -54,18 +60,25 @@ export default class RssXmlTransformer {
   }
 
   rssItemFromXMLObject(itemData: Object): RSSItem {
-    const { category, enclosure, ...feedItem } = itemData;
+    const { category, enclosure, guid, source, ...feedItem } = itemData;
 
-    // TODO: May not need length check
-    if (category && category.length > 0) {
-      feedItem.category = RSSCategory.fromObject(category);
-    }
+    Object.keys(feedItem).forEach((key) => {
+      feedItem[key] = new ContentChild(feedItem[key]);
+    });
 
-    // TODO: May not need length check
-    if (enclosure && enclosure.length > 0) {
-      feedItem.enclosure = RSSEnclosure.fromObject(enclosure);
-    }
+    feedItem.enclosure = enclosure && RSSEnclosure.fromObject(enclosure.$ || {});
+
+    feedItem.category = category && this.martialType(category, RSSCategory);
+    feedItem.guid = guid && this.martialType(guid, RSSGuid);
+    feedItem.source = source && this.martialType(source, RSSSource);
 
     return RSSItem.fromObject(feedItem);
+  }
+
+  martialType(data: Object, constructor: (dataObject: Object) => ContentChild) {
+    return constructor.fromObject({
+      content: data._,
+      ...data.$ || {},
+    });
   }
 }

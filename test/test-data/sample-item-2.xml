@@ -1,0 +1,12 @@
+<item>
+  <title>RSS Solutions for Computer Service Companies</title>
+  <description>Test Description</description>
+  <link>http://www.example.com/example.htm</link>
+  <category domain="www.dmoz.com">Computers/Software/Internet/Site Management/Content Management</category>
+  <comments>http://www.example.com/comments</comments>
+  <pubDate>Tue, 19 Oct 2004 11:09:07 -0400</pubDate>
+  <author>test.email@example.com</author>
+  <guid isPermaLink="true">http://www.example.com</guid>
+  <source url="http://www.example.come/source.xml">Example Source</source>
+  <enclosure url="http://www.example.com/mp3s/example.mp3" length="12216320" type="audio/mpeg" />
+</item>
