@@ -6,7 +6,7 @@ import { parseString } from 'xml2js';
 const parseXMLString = promisify(parseString);
 
 import { ContentChild, RSSItem, RSSFeed } from 'rss-spec';
-import RssXmlTransformer from '../src/rss-feed-from-xml';
+import RssXmlTransformer from '../src';
 
 
 describe('RssXmlTransformer', () => {
