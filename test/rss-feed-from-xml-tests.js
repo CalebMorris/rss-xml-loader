@@ -5,7 +5,7 @@ import Promise, { promisify } from 'bluebird';
 import { parseString } from 'xml2js';
 const parseXMLString = promisify(parseString);
 
-import { ContentChild, RSSItem } from 'rss-spec';
+import { ContentChild, RSSItem, RSSFeed } from 'rss-spec';
 import RssXmlTransformer from '../src/rss-feed-from-xml';
 
 
@@ -63,5 +63,60 @@ describe('RssXmlTransformer', () => {
 
       it('should list invalid input and have undefined for fields that had bad data');
     });
+  });
+
+  describe('transformFromString', () => {
+    const simpleFeedFileName = './test-data/sample-feed-1.xml';
+    const exhaustiveFeedFileName = './test-data/sample-feed-2.xml';
+
+    describe('required fields', () => {
+      it('should have expected values filled and undefined for optional', (done) =>
+        new Promise((resolve, reject) => {
+          const xmlSampleData = loadFileToSTring(simpleFeedFileName);
+          return transformer.transformFromString(xmlSampleData)
+            .then((feed) => {
+              expect(feed).to.be.an.instanceof(RSSFeed);
+              expect(feed).to.have.property('description').that.is.an.instanceof(ContentChild);
+              expect(feed).to.have.property('title').that.is.an.instanceof(ContentChild);
+              expect(feed).to.have.property('link').that.is.an.instanceof(ContentChild);
+              expect(feed).to.have.property('items').that.is.an.instanceof(Set);
+              expect(feed).to.have.property('skipHours').that.is.an.instanceof(Set);
+              expect(feed).to.have.property('skipDays').that.is.an.instanceof(Set);
+              const requiredKeys = new Set(['title', 'description', 'link', 'items', 'skipHours', 'skipDays']);
+              for(const key of Object.keys(feed)) {
+                if (!requiredKeys.has(key)) {
+                  expect(feed[key]).to.be.undefined;
+                }
+              }
+            })
+            .then(resolve).catch(reject);
+        }).then(done).catch(done)
+      );
+    });
+
+    describe('optional fields', () => {
+      it('should have no undefined values for spec defined fields', (done) =>
+        new Promise((resolve, reject) => {
+          const xmlSampleData = loadFileToSTring(exhaustiveFeedFileName);
+          return transformer.transformFromString(xmlSampleData)
+            .then((feed) => {
+              expect(feed).to.be.an.instanceof(RSSFeed);
+              for(const key of Object.keys(feed)) {
+                expect(feed[key]).to.not.equal(undefined, key);
+              }
+              expect(feed).to.have.property('skipHours').that.is.an.instanceof(Set);
+              expect(feed.skipHours.size).to.be.above(0);
+              expect(feed).to.have.property('skipDays').that.is.an.instanceof(Set);
+              expect(feed.skipDays.size).to.be.above(0);
+            })
+            .then(resolve).catch(reject);
+        }).then(done).catch(done)
+      );
+    });
+
+    it('should list invalid optional fields');
+    it('should list additional fields and attributes used');
+    it('should throw exception for invalid required fields');
+    it('should use first value of duplicate single element');
   });
 });

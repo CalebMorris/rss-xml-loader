@@ -26,35 +26,49 @@ export default class RssXmlTransformer {
           return null;
         }
 
-        return this.rssFeedFromXMLObject(xmlObj.rss.channel);
+        return this.rssFeedFromXMLObject(xmlObj.rss);
       });
   }
 
-  rssFeedFromXMLObject(channelData: Object) : RSSFeed {
-    const { category, cloud, image, item, ...feedData } = channelData;
+  // TODO: check against multiple instances of single field
+  // TODO: report unknown attributes
 
-    // TODO: May not need length check
-    if (category && category.length > 0) {
-      feedData.category = RSSCategory.fromObject(category);
+  rssFeedFromXMLObject(rssData: Object) : RSSFeed {
+    const { category, cloud, image, item, skipDays, skipHours, ...feedData } = rssData.channel;
+
+    Object.keys(feedData).forEach((key) => {
+      feedData[key] = new ContentChild(feedData[key]);
+    });
+
+    feedData.category = category && this.martialType(category, RSSCategory);
+
+    feedData.cloud = cloud && RSSCloud.fromObject(cloud.$ || {});
+    feedData.image = image && RSSImage.fromObject(image);
+
+    if (rssData.$) {
+      feedData.version = rssData.$.version;
     }
 
-    // TODO: May not need length check
-    if (cloud && cloud.length > 0) {
-      feedData.cloud = RSSCloud.fromObject(cloud);
-    }
-
-    // TODO: May not need length check
-    if (image && image.length > 0) {
-      feedData.image = RSSImage.fromObject(image);
-    }
-
-    feedData.version = xmlObj.rss.$.version;
     feedData.items = new Set([]);
     [].concat(item || [])
-      .map(rssItemFromXMLObject)
+      .map(this.rssItemFromXMLObject)
       .forEach((rssItem: RSSItem) => {
         feedData.items.add(rssItem);
       });
+
+    feedData.skipDays = new Set([]);
+    if (skipDays && skipDays.day) {
+      skipDays.day.forEach((day: string) => {
+        feedData.skipDays.add(day);
+      });
+    }
+
+    feedData.skipHours = new Set([]);
+    if (skipHours && skipHours.hour) {
+      skipHours.hour.forEach((hour: number) => {
+        feedData.skipHours.add(hour);
+      });
+    }
 
     return RSSFeed.fromObject(feedData);
   }
