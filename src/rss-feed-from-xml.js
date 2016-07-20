@@ -1,3 +1,5 @@
+/* @flow */
+
 import Promise, { promisify } from 'bluebird';
 import { ContentChild, RSSCategory, RSSCloud, RSSEnclosure, RSSFeed, RSSImage, RSSItem, RSSGuid, RSSSource } from 'rss-spec';
 import { parseString } from 'xml2js';
@@ -5,6 +7,10 @@ import { parseString } from 'xml2js';
 const parseXMLString = promisify(parseString);
 
 export default class RssXmlTransformer {
+  rssFeedFromXMLObject: (data: Object) => RSSFeed;
+  rssItemFromXMLObject: (data: Object) => RSSItem;
+  transformFromString: (xml: string) => Promise<string>;
+
   constructor() {
     this.rssFeedFromXMLObject = this.rssFeedFromXMLObject.bind(this);
     this.rssItemFromXMLObject = this.rssItemFromXMLObject.bind(this);
@@ -17,7 +23,7 @@ export default class RssXmlTransformer {
 
   transformFromString(xml: string) : Promise<string> {
     return parseXMLString(xml, RssXmlTransformer.defaultXMLParseOptions)
-      .then((xmlObj: any): string => {
+      .then((xmlObj: any): ?RSSFeed => {
         if (
           !xmlObj || !xmlObj.rss ||
           !xmlObj.rss.channel || !xmlObj.rss.channel.length === 0

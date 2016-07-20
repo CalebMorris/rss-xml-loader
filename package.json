@@ -5,6 +5,7 @@
   "main": "./src/index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha --recursive --compilers js:babel-register --require ./test/include.js",
+    "flow": "./node_modules/.bin/flow check",
     "lint": "./node_modules/.bin/eslint src tst *.js",
     "lint-quiet": "./node_modules/.bin/eslint --ext .js --quiet ."
   },
@@ -34,6 +35,7 @@
     "eslint-config-honu-base": "git+ssh@gitlab.com:CalebMorris/eslint-config-honu-base.git",
     "eslint-plugin-flowtype": "^2.3.0",
     "eslint-plugin-react": "^5.2.2",
+    "flow-bin": "^0.29.0",
     "istanbul": "^0.4.4",
     "mocha": "^2.5.3"
   }
