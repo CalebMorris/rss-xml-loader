@@ -2,9 +2,10 @@
   "name": "rss-xml-loader",
   "version": "0.1.0",
   "description": "XML Loader to process and wrap RSS Feeds",
-  "main": "./src/index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha --recursive --require ./test/include.js",
+    "build": "./node_modules/.bin/babel -d dist src/",
     "flow": "./node_modules/.bin/flow check",
     "lint": "./node_modules/.bin/eslint src tst *.js",
     "lint-quiet": "./node_modules/.bin/eslint --ext .js --quiet ."
@@ -24,6 +25,7 @@
     "xml2js": "^0.4.17"
   },
   "devDependencies": {
+    "babel-cli": "^6.11.4",
     "babel-core": "^6.10.4",
     "babel-eslint": "^6.1.2",
     "babel-plugin-transform-flow-strip-types": "^6.8.0",
