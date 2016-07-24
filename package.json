@@ -4,7 +4,7 @@
   "description": "XML Loader to process and wrap RSS Feeds",
   "main": "./src/index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --recursive --compilers js:babel-register --require ./test/include.js",
+    "test": "./node_modules/.bin/mocha --recursive --require ./test/include.js",
     "flow": "./node_modules/.bin/flow check",
     "lint": "./node_modules/.bin/eslint src tst *.js",
     "lint-quiet": "./node_modules/.bin/eslint --ext .js --quiet ."
