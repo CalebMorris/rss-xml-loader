@@ -20,7 +20,7 @@
   "dependencies": {
     "bluebird": "^3.4.1",
     "es6-error": "^3.0.0",
-    "rss-spec": "git+ssh@gitlab.com:CalebMorris/rss-spec.git",
+    "rss-spec": "^1.0.1",
     "xml2js": "^0.4.17"
   },
   "devDependencies": {
@@ -32,7 +32,7 @@
     "babel-register": "^6.9.0",
     "chai": "^3.5.0",
     "eslint": "^3.0.1",
-    "eslint-config-honu-base": "git+ssh@gitlab.com:CalebMorris/eslint-config-honu-base.git",
+    "eslint-config-honu-base": "^0.3.0",
     "eslint-plugin-flowtype": "^2.3.0",
     "eslint-plugin-react": "^5.2.2",
     "flow-bin": "^0.29.0",
