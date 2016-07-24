@@ -21,7 +21,7 @@ export default class RssXmlTransformer {
     return { trim: true, explicitArray: false };
   }
 
-  transformFromString(xml: string) : Promise<string> {
+  transformFromString(xml: string) : Promise<RSSFeed> {
     return parseXMLString(xml, RssXmlTransformer.defaultXMLParseOptions)
       .then((xmlObj: any): ?RSSFeed => {
         if (

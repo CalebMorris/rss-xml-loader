@@ -1,29 +1,33 @@
-import { expect } from 'chai';
-import { loadFileToSTring } from './test-utils';
+var expect = require('chai').expect;
+var loadFileToSTring = require('./test-utils').loadFileToSTring;
 
-import Promise, { promisify } from 'bluebird';
-import { parseString } from 'xml2js';
-const parseXMLString = promisify(parseString);
+var Promise = require('bluebird');
+var promisify = Promise.promisify;
+var parseString = require('xml2js').parseString;
+var parseXMLString = promisify(parseString);
 
-import { ContentChild, RSSItem, RSSFeed } from 'rss-spec';
-import RssXmlTransformer from '../src';
+var rssSpec = require('rss-spec');
+var ContentChild = rssSpec.ContentChild;
+var RSSItem = rssSpec.RSSItem;
+var RSSFeed = rssSpec.RSSFeed;
 
+var RssXmlTransformer = require('../dist').default;
 
-describe('RssXmlTransformer', () => {
-  let transformer;
+describe('RssXmlTransformer', function() {
+  var transformer;
 
-  before(() => {
+  before(function() {
     transformer = new RssXmlTransformer();
   });
 
-  describe('rssItemFromXMLObject', () => {
-    const simpleItemFileName = './test-data/sample-item-1.xml';
-    const exhaustiveItemFileName = './test-data/sample-item-2.xml';
+  describe('rssItemFromXMLObject', function() {
+    var simpleItemFileName = './test-data/sample-item-1.xml';
+    var exhaustiveItemFileName = './test-data/sample-item-2.xml';
 
-    describe('required fields', () => {
+    describe('required fields', function() {
       it('should have expected values filled and undefined for optional', (done) =>
         new Promise((resolve, reject) => {
-          const xmlSampleData = loadFileToSTring(simpleItemFileName);
+          var xmlSampleData = loadFileToSTring(simpleItemFileName);
           return parseXMLString(xmlSampleData, RssXmlTransformer.defaultXMLParseOptions)
             .then((wrapped) => wrapped.item)
             .then(transformer.rssItemFromXMLObject)
@@ -31,7 +35,7 @@ describe('RssXmlTransformer', () => {
               expect(item).to.be.instanceof(RSSItem);
               expect(item).to.have.property('description').that.is.an.instanceof(ContentChild);
               expect(item).to.have.property('title').that.is.an.instanceof(ContentChild);
-              for(const key of Object.keys(item)) {
+              for(var key of Object.keys(item)) {
                 if (key !== 'title' && key !== 'description') {
                   expect(item[key]).to.be.undefined;
                 }
@@ -44,16 +48,16 @@ describe('RssXmlTransformer', () => {
       it('should throw error on invalid input');
     });
 
-    describe('optional fields', () => {
+    describe('optional fields', function() {
       it('should have no undefined values for spec defined fields', (done) =>
         new Promise((resolve, reject) => {
-          const xmlSampleData = loadFileToSTring(exhaustiveItemFileName);
+          var xmlSampleData = loadFileToSTring(exhaustiveItemFileName);
           return parseXMLString(xmlSampleData, RssXmlTransformer.defaultXMLParseOptions)
             .then((wrapped) => wrapped.item)
             .then(transformer.rssItemFromXMLObject)
             .then((item) => {
               expect(item).to.be.instanceof(RSSItem);
-              for(const key of Object.keys(item)) {
+              for(var key of Object.keys(item)) {
                 expect(item[key]).to.not.equal(undefined, key);
               }
             })
@@ -65,14 +69,14 @@ describe('RssXmlTransformer', () => {
     });
   });
 
-  describe('transformFromString', () => {
-    const simpleFeedFileName = './test-data/sample-feed-1.xml';
-    const exhaustiveFeedFileName = './test-data/sample-feed-2.xml';
+  describe('transformFromString', function() {
+    var simpleFeedFileName = './test-data/sample-feed-1.xml';
+    var exhaustiveFeedFileName = './test-data/sample-feed-2.xml';
 
-    describe('required fields', () => {
+    describe('required fields', function() {
       it('should have expected values filled and undefined for optional', (done) =>
         new Promise((resolve, reject) => {
-          const xmlSampleData = loadFileToSTring(simpleFeedFileName);
+          var xmlSampleData = loadFileToSTring(simpleFeedFileName);
           return transformer.transformFromString(xmlSampleData)
             .then((feed) => {
               expect(feed).to.be.an.instanceof(RSSFeed);
@@ -82,8 +86,8 @@ describe('RssXmlTransformer', () => {
               expect(feed).to.have.property('items').that.is.an.instanceof(Set);
               expect(feed).to.have.property('skipHours').that.is.an.instanceof(Set);
               expect(feed).to.have.property('skipDays').that.is.an.instanceof(Set);
-              const requiredKeys = new Set(['title', 'description', 'link', 'items', 'skipHours', 'skipDays']);
-              for(const key of Object.keys(feed)) {
+              var requiredKeys = new Set(['title', 'description', 'link', 'items', 'skipHours', 'skipDays']);
+              for(var key of Object.keys(feed)) {
                 if (!requiredKeys.has(key)) {
                   expect(feed[key]).to.be.undefined;
                 }
@@ -94,14 +98,14 @@ describe('RssXmlTransformer', () => {
       );
     });
 
-    describe('optional fields', () => {
+    describe('optional fields', function() {
       it('should have no undefined values for spec defined fields', (done) =>
         new Promise((resolve, reject) => {
-          const xmlSampleData = loadFileToSTring(exhaustiveFeedFileName);
+          var xmlSampleData = loadFileToSTring(exhaustiveFeedFileName);
           return transformer.transformFromString(xmlSampleData)
             .then((feed) => {
               expect(feed).to.be.an.instanceof(RSSFeed);
-              for(const key of Object.keys(feed)) {
+              for(var key of Object.keys(feed)) {
                 expect(feed[key]).to.not.equal(undefined, key);
               }
               expect(feed).to.have.property('skipHours').that.is.an.instanceof(Set);

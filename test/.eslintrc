@@ -1,8 +1,12 @@
 {
   "env": {
-    "mocha": true
+    "mocha": true,
+    "es6": false
   },
   "rules": {
-    "no-unused-expressions": 0
+    "no-unused-expressions": 0,
+    "no-var": 0,
+    "prefer-arrow-callback": 0,
+    "object-shorthand": 0
   }
 }
