@@ -4,6 +4,7 @@
   "description": "XML Loader to process and wrap RSS Feeds",
   "main": "./dist/index.js",
   "scripts": {
+    "prep": "npm run lint && npm run flow && npm run test",
     "build": "./node_modules/.bin/babel -d dist src/",
     "flow": "./node_modules/.bin/flow check",
     "lint": "./node_modules/.bin/eslint src tst *.js",
