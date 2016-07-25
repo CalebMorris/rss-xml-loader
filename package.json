@@ -1,6 +1,6 @@
 {
   "name": "rss-xml-loader",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "XML Loader to process and wrap RSS Feeds",
   "main": "./dist/index.js",
   "scripts": {
